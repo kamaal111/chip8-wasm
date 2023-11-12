@@ -4,6 +4,9 @@ default:
 build:
     npx wasm-pack build
     just install-web-dependencies
+    rm -rf www/node_modules/chip8
+    mkdir www/node_modules/chip8
+    cp -r pkg/. www/node_modules/chip8
     just www/build
 
 run:

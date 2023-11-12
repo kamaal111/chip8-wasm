@@ -3,11 +3,12 @@ mod utils;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
-}
+pub struct Chip8CPU {}
 
 #[wasm_bindgen]
-pub fn greet() {
-    alert("Hello, chip8-wasm!");
+impl Chip8CPU {
+    pub fn new() -> Chip8CPU {
+        utils::set_panic_hook();
+        Chip8CPU {}
+    }
 }

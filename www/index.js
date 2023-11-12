@@ -1,3 +1,4 @@
-import * as wasm from "chip8";
+import {Chip8CPU} from "chip8";
 
-wasm.greet();
+const cpu = Chip8CPU.new()
+console.log('cpu', cpu)

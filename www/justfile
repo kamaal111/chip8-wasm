@@ -1,0 +1,13 @@
+default:
+    just --list
+
+build:
+    yarn build
+
+run:
+    yarn start
+
+bootstrap: install-node-modules
+
+install-node-modules:
+    yarn

@@ -1,0 +1,13 @@
+{
+  "name": "chip8-wasm",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "wasm-pack": "^0.12.1"
+  }
+}

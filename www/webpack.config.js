@@ -1,5 +1,6 @@
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const path = require('path');
+const path = require("path");
+
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: "./bootstrap.js",
@@ -8,7 +9,10 @@ module.exports = {
     filename: "bootstrap.js",
   },
   mode: "development",
-  plugins: [
-    new CopyWebpackPlugin(['index.html'])
-  ],
+  experiments: {
+    asyncWebAssembly: true,
+    syncWebAssembly: true,
+  },
+  module: {},
+  plugins: [new CopyPlugin({ patterns: ["index.html"] })],
 };

@@ -1,0 +1,33 @@
+default:
+    just --list
+
+setup-dev-container: copy-to-container setup-zsh-environment
+
+initialize-dev-container: copy-git-config-from-outside-container
+
+[private]
+setup-zsh-environment:
+    #!/bin/zsh
+
+    if [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]
+    then
+        echo "Installing zsh-autosuggestions"
+        git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+    fi
+
+    if [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]
+    then
+        echo "Installing zsh-syntax-highlighting"
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+    fi
+
+    echo "Updating zsh configuration"
+    cp -f .zshrc ~/.zshrc
+
+[private]
+copy-git-config-from-outside-container:
+    cp -f ~/.gitconfig .gitconfig
+
+[private]
+copy-to-container:
+    cp -f .gitconfig ~/.gitconfig

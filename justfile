@@ -13,6 +13,13 @@ build-run: build run
 
 bootstrap: install-node-modules
 
+setup-dev-container:
+    just .devcontainer/setup-dev-container
+    just bootstrap
+
+initialize-dev-container:
+    just .devcontainer/initialize-dev-container
+
 [private]
 install-node-modules:
     yarn

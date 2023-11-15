@@ -4,10 +4,13 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
-    /// Use `js_namespace` here to bind `console.log(..)` instead of just
-    /// `log(..)`
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
+}
+
+// To print in to the browser console.
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
 #[wasm_bindgen]
@@ -44,6 +47,7 @@ pub struct Chip8CPU {
 
 #[wasm_bindgen]
 impl Chip8CPU {
+    /// Chip8 initializer
     pub fn new() -> Chip8CPU {
         utils::set_panic_hook();
 
@@ -58,10 +62,6 @@ impl Chip8CPU {
             program_counter: 0,
             stack_pointer: Vec::with_capacity(16),
         }
-    }
-
-    pub fn cycle(self) {
-        log(format!("key_inputs={:?}", self.key_inputs,).as_str());
     }
 }
 
@@ -78,7 +78,7 @@ where
     T: Copy,
 {
     fn with_filled_capacity(size: usize, value: T) -> Vec<T> {
-        let mut filled_vec: Vec<T> = Vec::with_capacity(size as usize);
+        let mut filled_vec: Vec<T> = Vec::with_capacity(size);
         filled_vec.fill(size, value);
         return filled_vec;
     }

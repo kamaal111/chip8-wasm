@@ -8,13 +8,13 @@ module.exports = {
     rules: [
       {
         test: /\.ts?$/,
-        use: 'ts-loader',
+        use: "ts-loader",
         exclude: /node_modules/,
       },
     ],
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: [".ts", ".js"],
   },
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -26,5 +26,5 @@ module.exports = {
     syncWebAssembly: true,
   },
   module: {},
-  plugins: [new CopyPlugin({ patterns: ["index.html"] })],
+  plugins: [new CopyPlugin({ patterns: ["index.html", "games"] })],
 };

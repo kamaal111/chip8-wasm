@@ -1,38 +1,21 @@
 import * as React from "react";
+import { type Chip8Emulator } from "chip8";
 
-type Game = { name: string; data: ArrayBuffer };
-
-const GAMES = ["PONG"];
-
-function GameSelector() {
-  const [games, setGames] = React.useState<Array<Game>>([]);
+function GameSelector({ emulator }: { emulator: Chip8Emulator }) {
+  const [games, setGames] = React.useState<Array<string>>([]);
 
   React.useEffect(() => {
-    loadGames();
+    setGames(emulator.get_game_names());
   }, []);
-
-  async function loadGames() {
-    const validGames: Array<Game> = [];
-    for (const game of GAMES) {
-      const response = await fetch(`games/${game}`);
-      if (!response.ok) continue;
-
-      const responseBlob = await response.blob();
-      const responseBlobBuffer = await responseBlob.arrayBuffer();
-      validGames.push({ name: game, data: responseBlobBuffer });
-    }
-
-    setGames(validGames);
-  }
 
   return (
     <>
       <label>Choose a game:</label>
       <select name="games" id="games">
-        {games.map(({ name }) => {
+        {games.map((game) => {
           return (
-            <option value={name} key={name}>
-              {name}
+            <option value={game} key={game}>
+              {game}
             </option>
           );
         })}

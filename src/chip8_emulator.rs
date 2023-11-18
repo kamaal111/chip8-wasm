@@ -5,15 +5,27 @@ mod utils;
 mod traits;
 use traits::FillableVector;
 
-use js_sys::Uint8Array;
-use wasm_bindgen::prelude::wasm_bindgen;
+use js_sys::{Array, Uint8Array};
+use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 const DISPLAY_WIDTH: u32 = 64;
 const DISPLAY_HEIGHT: u32 = 32;
 
 #[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
+// To print in to the browser console.
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
+#[wasm_bindgen]
 pub struct Chip8Emulator {
     cpu: Chip8CPU,
+    games: Vec<Game>,
 }
 
 #[wasm_bindgen]
@@ -23,7 +35,15 @@ impl Chip8Emulator {
 
         Chip8Emulator {
             cpu: Chip8CPU::new(),
+            games: Game::make_games(),
         }
+    }
+
+    pub fn get_game_names(&self) -> Array {
+        self.games
+            .iter()
+            .map(|game| JsValue::from_str(game.name.as_str()))
+            .collect::<Array>()
     }
 
     /// Get buffer as a flat JavaScript array.
@@ -37,6 +57,24 @@ impl Chip8Emulator {
 
     pub fn get_display_height(&self) -> u32 {
         self.cpu.display.height
+    }
+}
+
+struct Game {
+    name: String,
+    data: Vec<u8>,
+}
+
+impl Game {
+    fn make_games() -> Vec<Game> {
+        let mut games = Vec::new();
+        let pong = Game {
+            name: String::from("PONG"),
+            data: include_bytes!("games/PONG").to_vec(),
+        };
+        games.push(pong);
+
+        games
     }
 }
 

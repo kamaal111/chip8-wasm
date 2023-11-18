@@ -19,7 +19,7 @@ export default function Home() {
       </Head>
       <main>
         <div className={styles.home}>
-          <GameSelector />
+          <GameSelector emulator={chip8} />
           <Chip8Display emulator={chip8} />
         </div>
       </main>

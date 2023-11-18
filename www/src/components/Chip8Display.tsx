@@ -5,6 +5,8 @@ import styles from "@/styles/components/chip8Display.module.css";
 
 const BUFFER_SIZE = 10; // px
 const GRID_COLOR = "#CCCCCC";
+const ON_BUFFER_COLOR = "#000000";
+const OFF_BUFFER_COLOR = "#FFFFFF";
 
 function drawDisplay(
   context: CanvasRenderingContext2D,
@@ -29,6 +31,41 @@ function drawDisplay(
   context.stroke();
 }
 
+function getDisplayBufferIndex(
+  row: number,
+  column: number,
+  width: number
+): number {
+  return row * width + column;
+}
+
+function drawDisplayBuffers(
+  context: CanvasRenderingContext2D,
+  displayBuffer: Uint8Array,
+  { width, height }: { width: number; height: number }
+) {
+  context.beginPath();
+  for (let row = 0; row < height; row += 1) {
+    for (let column = 0; column < width; column += 1) {
+      const index = getDisplayBufferIndex(row, column, width);
+      const buffer = displayBuffer[index];
+      if (buffer === 0) {
+        context.fillStyle = OFF_BUFFER_COLOR;
+      } else {
+        context.fillStyle = ON_BUFFER_COLOR;
+      }
+      context.fillRect(
+        column * (BUFFER_SIZE + 1) + 1,
+        row * (BUFFER_SIZE + 1) + 1,
+        BUFFER_SIZE,
+        BUFFER_SIZE
+      );
+    }
+  }
+
+  context.stroke();
+}
+
 function Chip8Display({ chip8CPU }: { chip8CPU: Chip8CPU }) {
   const chip8DisplayRef = React.useRef<HTMLCanvasElement | null>(null);
 
@@ -42,6 +79,12 @@ function Chip8Display({ chip8CPU }: { chip8CPU: Chip8CPU }) {
     const chip8DisplayCanvasContext = chip8DisplayCanvas?.getContext("2d");
     if (chip8DisplayCanvasContext) {
       drawDisplay(chip8DisplayCanvasContext, chip8DisplayDimensions);
+      const displayBuffer = chip8CPU.get_display_buffer();
+      drawDisplayBuffers(
+        chip8DisplayCanvasContext,
+        displayBuffer,
+        chip8DisplayDimensions
+      );
     }
   }, []);
 

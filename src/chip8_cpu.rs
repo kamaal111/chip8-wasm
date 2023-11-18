@@ -58,6 +58,7 @@ impl Chip8CPU {
         }
     }
 
+    /// Get buffer as a flat JavaScript array.
     pub fn get_display_buffer(&self) -> Uint8Array {
         self.display.get_buffer()
     }
@@ -89,7 +90,6 @@ impl Display {
         }
     }
 
-    /// Get buffer as a flat JavaScript array.
     fn get_buffer(&self) -> Uint8Array {
         Uint8Array::from(self.buffer.as_slice())
     }

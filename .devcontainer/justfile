@@ -26,8 +26,12 @@ setup-zsh-environment:
 
 [private]
 copy-git-config-from-outside-container:
+    #!/bin/zsh
+
     cp -f ~/.gitconfig .gitconfig
 
 [private]
 copy-to-container:
+    #!/bin/zsh
+
     cp -f .gitconfig ~/.gitconfig

@@ -1,7 +1,15 @@
 #[path = "./utils.rs"]
 mod utils;
 
-use wasm_bindgen::prelude::*;
+#[path = "./traits.rs"]
+mod traits;
+use traits::FillableVector;
+
+use js_sys::Uint8Array;
+use wasm_bindgen::prelude::wasm_bindgen;
+
+const DISPLAY_WIDTH: u32 = 64;
+const DISPLAY_HEIGHT: u32 = 32;
 
 #[wasm_bindgen]
 pub struct Chip8CPU {
@@ -9,10 +17,8 @@ pub struct Chip8CPU {
     /// (pretty convenient that the number of keys falls within a nibble). The
     /// machine is also fed with the programs it is supposed to run.
     key_inputs: Vec<u8>,
-    /// For output, the machine uses a 64x32 display, and a simple sound buzzer.
-    /// The display is basically just an array of pixels that are either in the
-    /// on or off state.
-    display_buffer: Vec<u8>,
+    /// Display reference.
+    display: Display,
     /// CHIP8 has memory that can hold up to 4096 bytes. This includes the
     /// interpreter itself, the fonts (more on this later), and where it loads the
     /// program it is supposed to run (from input).
@@ -41,7 +47,7 @@ impl Chip8CPU {
 
         Chip8CPU {
             key_inputs: Vec::with_filled_capacity(16, 0),
-            display_buffer: Vec::with_filled_capacity(64 * 32, 0),
+            display: Display::new(),
             memory: Vec::with_filled_capacity(4096, 0),
             gpio: Vec::with_filled_capacity(16, 0),
             sound_timer: 0,
@@ -51,29 +57,40 @@ impl Chip8CPU {
             stack_pointer: Vec::with_capacity(16),
         }
     }
-}
 
-trait FillableVector<T>
-where
-    T: Copy,
-{
-    fn with_filled_capacity(size: usize, value: T) -> Vec<T>;
-    fn fill(&mut self, limit: usize, value: T);
-}
-
-impl<T> FillableVector<T> for Vec<T>
-where
-    T: Copy,
-{
-    fn with_filled_capacity(size: usize, value: T) -> Vec<T> {
-        let mut filled_vec: Vec<T> = Vec::with_capacity(size);
-        filled_vec.fill(size, value);
-        return filled_vec;
+    pub fn get_display_buffer(&self) -> Uint8Array {
+        self.display.get_buffer()
     }
 
-    fn fill(&mut self, limit: usize, value: T) {
-        for _ in 0..limit {
-            self.push(value);
+    pub fn get_display_width(&self) -> u32 {
+        self.display.width
+    }
+
+    pub fn get_display_height(&self) -> u32 {
+        self.display.height
+    }
+}
+
+/// For output, the machine uses a 64x32 display, and a simple sound buzzer.
+/// The display is basically just an array of pixels that are either in the
+/// on or off state.
+struct Display {
+    width: u32,
+    height: u32,
+    buffer: Vec<u8>,
+}
+
+impl Display {
+    fn new() -> Display {
+        Display {
+            width: DISPLAY_WIDTH,
+            height: DISPLAY_HEIGHT,
+            buffer: Vec::with_filled_capacity((DISPLAY_WIDTH * DISPLAY_HEIGHT) as usize, 0),
         }
+    }
+
+    /// Get buffer as a flat JavaScript array.
+    fn get_buffer(&self) -> Uint8Array {
+        Uint8Array::from(self.buffer.as_slice())
     }
 }

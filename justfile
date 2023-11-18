@@ -2,9 +2,12 @@ default:
     just --list
 
 build:
+    #!/bin/zsh
+
+    rm -rf www/node_modules www/.next
+    yarn
     npx wasm-pack build
     just install-web-dependencies
-    just copy-build-to-web
 
 run:
     just www/run
@@ -28,10 +31,3 @@ install-node-modules:
 [private]
 install-web-dependencies:
     just www/install-node-modules
-
-[private]
-copy-build-to-web:
-    mkdir -p www/node_modules
-    rm -rf www/node_modules/chip8
-    mkdir -p www/node_modules/chip8
-    cp -r pkg/. www/node_modules/chip8

@@ -1,15 +1,14 @@
-import * as React from "react";
-import Head from "next/head";
 import { Chip8CPU } from "chip8";
+import Head from "next/head";
 
 import GameSelector from "@/components/GameSelector";
+import Chip8Display from "@/components/Chip8Display";
+
+import styles from "@/styles/pages/home.module.css";
+
+const chip8 = Chip8CPU.new();
 
 export default function Home() {
-  React.useEffect(() => {
-    const chip8 = Chip8CPU.new();
-    console.log("chip8", chip8);
-  }, []);
-
   return (
     <>
       <Head>
@@ -19,7 +18,10 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <GameSelector />
+        <div className={styles.home}>
+          <GameSelector />
+          <Chip8Display chip8CPU={chip8} />
+        </div>
       </main>
     </>
   );

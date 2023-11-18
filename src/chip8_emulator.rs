@@ -12,7 +12,35 @@ const DISPLAY_WIDTH: u32 = 64;
 const DISPLAY_HEIGHT: u32 = 32;
 
 #[wasm_bindgen]
-pub struct Chip8CPU {
+pub struct Chip8Emulator {
+    cpu: Chip8CPU,
+}
+
+#[wasm_bindgen]
+impl Chip8Emulator {
+    pub fn new() -> Chip8Emulator {
+        utils::set_panic_hook();
+
+        Chip8Emulator {
+            cpu: Chip8CPU::new(),
+        }
+    }
+
+    /// Get buffer as a flat JavaScript array.
+    pub fn get_display_buffer(&self) -> Uint8Array {
+        self.cpu.display.get_buffer()
+    }
+
+    pub fn get_display_width(&self) -> u32 {
+        self.cpu.display.width
+    }
+
+    pub fn get_display_height(&self) -> u32 {
+        self.cpu.display.height
+    }
+}
+
+struct Chip8CPU {
     /// For the CHIP8 virtual machine, the input comes from a 16-button keyboard
     /// (pretty convenient that the number of keys falls within a nibble). The
     /// machine is also fed with the programs it is supposed to run.
@@ -39,12 +67,9 @@ pub struct Chip8CPU {
     /// A stack of at most 16 16-bit values, used for subroutine calls.
     stack_pointer: Vec<u16>,
 }
-#[wasm_bindgen]
-impl Chip8CPU {
-    /// Chip8 initializer
-    pub fn new() -> Chip8CPU {
-        utils::set_panic_hook();
 
+impl Chip8CPU {
+    fn new() -> Chip8CPU {
         Chip8CPU {
             key_inputs: Vec::with_filled_capacity(16, 0),
             display: Display::new(),
@@ -56,19 +81,6 @@ impl Chip8CPU {
             program_counter: 0,
             stack_pointer: Vec::with_capacity(16),
         }
-    }
-
-    /// Get buffer as a flat JavaScript array.
-    pub fn get_display_buffer(&self) -> Uint8Array {
-        self.display.get_buffer()
-    }
-
-    pub fn get_display_width(&self) -> u32 {
-        self.display.width
-    }
-
-    pub fn get_display_height(&self) -> u32 {
-        self.display.height
     }
 }
 

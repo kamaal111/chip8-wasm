@@ -1,1 +1,1 @@
-pub mod chip8_cpu;
+pub mod chip8_emulator;

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { type Chip8CPU } from "chip8";
+import { type Chip8Emulator } from "chip8";
 
 import styles from "@/styles/components/chip8Display.module.css";
 
@@ -66,12 +66,12 @@ function drawDisplayBuffers(
   context.stroke();
 }
 
-function Chip8Display({ chip8CPU }: { chip8CPU: Chip8CPU }) {
+function Chip8Display({ emulator }: { emulator: Chip8Emulator }) {
   const chip8DisplayRef = React.useRef<HTMLCanvasElement | null>(null);
 
   const chip8DisplayDimensions = {
-    width: chip8CPU.get_display_width(),
-    height: chip8CPU.get_display_height(),
+    width: emulator.get_display_width(),
+    height: emulator.get_display_height(),
   };
 
   React.useEffect(() => {
@@ -79,7 +79,7 @@ function Chip8Display({ chip8CPU }: { chip8CPU: Chip8CPU }) {
     const chip8DisplayCanvasContext = chip8DisplayCanvas?.getContext("2d");
     if (chip8DisplayCanvasContext) {
       drawDisplay(chip8DisplayCanvasContext, chip8DisplayDimensions);
-      const displayBuffer = chip8CPU.get_display_buffer();
+      const displayBuffer = emulator.get_display_buffer();
       drawDisplayBuffers(
         chip8DisplayCanvasContext,
         displayBuffer,

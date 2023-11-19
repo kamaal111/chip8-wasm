@@ -5,16 +5,15 @@ build-release:
     #!/bin/zsh
 
     npx wasm-pack build --release
-    just www/install-node-modules
-    just www/build
+    just www/build-release
 
 build-dev:
     #!/bin/zsh
 
-    rm -rf www/node_modules www/.next
+    # rm -rf www/node_modules www/.next
     yarn
     npx wasm-pack build
-    just www/install-node-modules
+    just www/build-dev
 
 run:
     just www/run

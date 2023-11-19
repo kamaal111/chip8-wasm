@@ -1,17 +1,12 @@
-import * as React from "react";
-import { type Chip8 } from "chip8";
-
-import styles from "@/styles/components/chip8Display.module.css";
-
 const BUFFER_SIZE = 10; // px
 const GRID_COLOR = "#CCCCCC";
 const ON_BUFFER_COLOR = "#000000";
 const OFF_BUFFER_COLOR = "#FFFFFF";
 
-function drawDisplay(
-  context: CanvasRenderingContext2D,
-  { width, height }: { width: number; height: number }
-) {
+const chip8Display = document.getElementById("chip8-display");
+const chip8DisplayContext = chip8Display.getContext("2d");
+
+function drawDisplay(context, { width, height }) {
   context.beginPath();
   context.strokeStyle = GRID_COLOR;
 
@@ -31,19 +26,11 @@ function drawDisplay(
   context.stroke();
 }
 
-function getDisplayBufferIndex(
-  row: number,
-  column: number,
-  width: number
-): number {
+function getDisplayBufferIndex(row, column, width) {
   return row * width + column;
 }
 
-function drawDisplayBuffers(
-  context: CanvasRenderingContext2D,
-  displayBuffer: Uint8Array,
-  { width, height }: { width: number; height: number }
-) {
+function drawDisplayBuffers(context, displayBuffer, { width, height }) {
   context.beginPath();
   for (let row = 0; row < height; row += 1) {
     for (let column = 0; column < width; column += 1) {
@@ -66,41 +53,23 @@ function drawDisplayBuffers(
   context.stroke();
 }
 
-function Chip8Display({ emulator }: { emulator: Chip8 }) {
-  const chip8DisplayRef = React.useRef<HTMLCanvasElement | null>(null);
-
+export function buildDisplay(chip8) {
   const chip8DisplayDimensions = {
-    width: emulator.get_display_width(),
-    height: emulator.get_display_height(),
+    width: chip8.get_display_width(),
+    height: chip8.get_display_height(),
   };
-
-  React.useEffect(() => {
-    const chip8DisplayCanvas = chip8DisplayRef.current;
-    const chip8DisplayCanvasContext = chip8DisplayCanvas?.getContext("2d");
-    if (chip8DisplayCanvasContext) {
-      drawDisplay(chip8DisplayCanvasContext, chip8DisplayDimensions);
-      const displayBuffer = emulator.get_display_buffer();
-      drawDisplayBuffers(
-        chip8DisplayCanvasContext,
-        displayBuffer,
-        chip8DisplayDimensions
-      );
-    }
-  }, []);
 
   const displayWidth = (BUFFER_SIZE + 1) * chip8DisplayDimensions.width + 1;
   const displayHeight = (BUFFER_SIZE + 1) * chip8DisplayDimensions.height + 1;
 
-  return (
-    <div>
-      <canvas
-        className={styles.displayCanvas}
-        ref={chip8DisplayRef}
-        width={displayWidth}
-        height={displayHeight}
-      />
-    </div>
+  chip8Display.width = displayWidth;
+  chip8Display.height = displayHeight;
+
+  drawDisplay(chip8DisplayContext, chip8DisplayDimensions);
+  const displayBuffer = chip8.get_display_buffer();
+  drawDisplayBuffers(
+    chip8DisplayContext,
+    displayBuffer,
+    chip8DisplayDimensions
   );
 }
-
-export default Chip8Display;

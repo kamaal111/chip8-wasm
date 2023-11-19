@@ -1,0 +1,9 @@
+.home {
+  display: flex;
+  flex-direction: column;
+}
+
+#chip8-display {
+  margin-top: 12px;
+  background-color: #cccccc;
+}

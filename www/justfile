@@ -1,11 +1,14 @@
 default:
     just --list
 
-build:
-    yarn build
+build-dev: install-node-modules
+    yarn build-dev
+
+build-release: install-node-modules
+    yarn build-release
 
 run:
-    yarn dev
+    yarn start
 
 install-node-modules:
     yarn

@@ -48,4 +48,6 @@ impl Chip8CPU {
             stack_pointer: Vec::with_capacity(16),
         }
     }
+
+    pub fn load_rom(&self, game_data: &Vec<u8>) {}
 }

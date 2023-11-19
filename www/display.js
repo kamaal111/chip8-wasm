@@ -3,9 +3,6 @@ const GRID_COLOR = "#CCCCCC";
 const ON_BUFFER_COLOR = "#000000";
 const OFF_BUFFER_COLOR = "#FFFFFF";
 
-const chip8Display = document.getElementById("chip8-display");
-const chip8DisplayContext = chip8Display.getContext("2d");
-
 function drawDisplay(context, { width, height }) {
   context.beginPath();
   context.strokeStyle = GRID_COLOR;
@@ -54,6 +51,10 @@ function drawDisplayBuffers(context, displayBuffer, { width, height }) {
 }
 
 export function buildDisplay(chip8) {
+  const chip8Display = document.getElementById("chip8-display");
+  if (chip8Display == null) throw new Error("No chip 8 display found");
+
+  const chip8DisplayContext = chip8Display.getContext("2d");
   const chip8DisplayDimensions = {
     width: chip8.get_display_width(),
     height: chip8.get_display_height(),

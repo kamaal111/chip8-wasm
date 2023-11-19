@@ -38,9 +38,12 @@ impl Chip8 {
     }
 
     pub fn load_rom(&self, game_name: String) -> Result<(), js_sys::Error> {
-        if !self.games_contain_game_name(game_name) {
-            return Err(js_sys::Error::new("Invalid game provided").into());
-        }
+        let game_data = match self.get_game_with_name(game_name) {
+            None => return Err(js_sys::Error::new("Invalid game provided").into()),
+            Some(game_data) => game_data,
+        };
+
+        self.cpu.load_rom(game_data);
 
         Ok(())
     }
@@ -74,11 +77,13 @@ impl Chip8 {
     fn make_games() -> HashMap<String, Vec<u8>> {
         let mut games = HashMap::new();
         games.insert("PONG".to_string(), include_bytes!("games/PONG").to_vec());
+        games.insert("PONG2".to_string(), include_bytes!("games/PONG2").to_vec());
+        games.insert("TANK".to_string(), include_bytes!("games/TANK").to_vec());
 
         games
     }
 
-    fn games_contain_game_name(&self, game_name: String) -> bool {
-        self.games.get(&game_name).is_some()
+    fn get_game_with_name(&self, game_name: String) -> Option<&Vec<u8>> {
+        self.games.get(&game_name)
     }
 }

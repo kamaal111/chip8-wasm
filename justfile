@@ -10,7 +10,7 @@ build-release:
 build-dev:
     #!/bin/zsh
 
-    rm -rf www/node_modules www/.next
+    rm -rf www/node_modules
     yarn
     npx wasm-pack build
     just www/build-dev

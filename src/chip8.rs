@@ -45,9 +45,9 @@ impl Chip8 {
         self.cpu.cycle();
     }
 
-    pub fn on_key_press(&self, symbol: String, modifier: String) {}
+    // pub fn on_key_press(&self, symbol: String, modifier: String) {}
 
-    pub fn on_key_release(&self, symbol: String, modifier: String) {}
+    // pub fn on_key_release(&self, symbol: String, modifier: String) {}
 
     /// Get games names as a JavaScript Array of strings.
     pub fn get_game_names(&self) -> js_sys::Array {
@@ -58,8 +58,8 @@ impl Chip8 {
     }
 
     /// Get display buffer as a flat JavaScript array.
-    pub fn get_display_buffer(&self) -> js_sys::Uint8Array {
-        self.cpu.display.get_buffer()
+    pub fn get_display_buffer_array(&self) -> js_sys::Uint8Array {
+        self.cpu.display.get_buffer_array()
     }
 
     /// Get display width.

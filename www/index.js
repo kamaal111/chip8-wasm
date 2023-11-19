@@ -12,19 +12,19 @@ const chip8DisplayDimensions = {
   height: chip8.get_display_height(),
 };
 buildDisplay(chip8DisplayDimensions);
-drawDisplayBuffers(chip8.get_display_buffer(), chip8DisplayDimensions);
+drawDisplayBuffers(chip8.get_display_buffer_array(), chip8DisplayDimensions);
 subscribeToSelectedGame((gameName) => chip8.load_rom(gameName));
 
 function play() {
-  animationID = requestAnimationFrame((_animationFrame) => {
-    while (!chip8.get_draw_flag()) {
-      chip8.cycle();
-    }
+  // animationID = requestAnimationFrame((_animationFrame) => {
+  // while (!chip8.get_draw_flag()) {
+  chip8.cycle();
+  // }
 
-    drawDisplayBuffers(chip8.get_display_buffer(), chip8DisplayDimensions);
-    chip8.end_cycle();
-    play();
-  });
+  drawDisplayBuffers(chip8.get_display_buffer_array(), chip8DisplayDimensions);
+  chip8.end_cycle();
+  // play();
+  // });
 }
 
 play();

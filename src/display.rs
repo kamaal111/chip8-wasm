@@ -23,7 +23,15 @@ impl Display {
         }
     }
 
-    pub fn get_buffer(&self) -> js_sys::Uint8Array {
+    pub fn get_buffer_array(&self) -> js_sys::Uint8Array {
         js_sys::Uint8Array::from(self.buffer.as_slice())
+    }
+
+    pub fn get_buffer_item(&self, index: usize) -> u8 {
+        self.buffer[index]
+    }
+
+    pub fn set_buffer_item(&mut self, index: usize, value: u8) {
+        self.buffer[index] = value;
     }
 }

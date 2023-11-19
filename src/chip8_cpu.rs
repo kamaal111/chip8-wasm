@@ -64,6 +64,8 @@ pub struct Chip8CPU {
     program_counter: u16,
     /// A stack of at most 16 16-bit values, used for subroutine calls.
     stack_pointer: Vec<u16>,
+    /// Whether or not to draw.
+    pub draw_flag: bool,
 }
 
 impl Chip8CPU {
@@ -78,6 +80,7 @@ impl Chip8CPU {
             index_register: 0,
             program_counter: 0,
             stack_pointer: Vec::with_capacity(16),
+            draw_flag: false,
         }
     }
 
@@ -87,6 +90,38 @@ impl Chip8CPU {
             .iter()
             .enumerate()
             .for_each(|(index, binary)| self.memory[index + 0x200] = binary.clone());
+    }
+
+    pub fn cycle(&mut self) {
+        self.process_opcode();
+        self.program_counter += 2;
+        self.update_timers();
+    }
+}
+
+impl Chip8CPU {
+    fn get_opcode(&self) -> u16 {
+        let counter = self.program_counter as usize;
+
+        ((self.memory[counter] as u16) << 8) | (self.memory[counter + 1] as u16)
+    }
+
+    fn process_opcode(&self) {
+        let opcode = self.get_opcode();
+
+        // TODO: Process opcode
+    }
+
+    fn update_timers(&mut self) {
+        if self.delay_timer > 0 {
+            self.delay_timer -= 1;
+        }
+        if self.sound_timer > 0 {
+            self.sound_timer -= 1
+        }
+        if self.sound_timer == 0 {
+            // TODO: Play sound! 🔊
+        }
     }
 }
 

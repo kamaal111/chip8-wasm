@@ -26,6 +26,8 @@ impl Chip8 {
         }
     }
 
+    /// Load a ROM by name.
+    /// Returns void on success and throws a JavaScript on failure.
     pub fn load_rom(&mut self, game_name: String) -> Result<(), js_sys::Error> {
         let game_data = match self.get_game_with_name(game_name) {
             None => return Err(js_sys::Error::new("Invalid game provided").into()),
@@ -39,10 +41,15 @@ impl Chip8 {
         Ok(())
     }
 
+    pub fn cycle(&mut self) {
+        self.cpu.cycle();
+    }
+
     pub fn on_key_press(&self, symbol: String, modifier: String) {}
 
     pub fn on_key_release(&self, symbol: String, modifier: String) {}
 
+    /// Get games names as a JavaScript Array of strings.
     pub fn get_game_names(&self) -> js_sys::Array {
         self.games
             .iter()
@@ -50,17 +57,27 @@ impl Chip8 {
             .collect::<js_sys::Array>()
     }
 
-    /// Get buffer as a flat JavaScript array.
+    /// Get display buffer as a flat JavaScript array.
     pub fn get_display_buffer(&self) -> js_sys::Uint8Array {
         self.cpu.display.get_buffer()
     }
 
+    /// Get display width.
     pub fn get_display_width(&self) -> u32 {
         self.cpu.display.width
     }
 
+    /// Get display height.
     pub fn get_display_height(&self) -> u32 {
         self.cpu.display.height
+    }
+
+    pub fn get_draw_flag(&self) -> bool {
+        self.cpu.draw_flag
+    }
+
+    pub fn end_cycle(&mut self) {
+        self.cpu.draw_flag = false;
     }
 }
 

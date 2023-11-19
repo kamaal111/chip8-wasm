@@ -6,6 +6,19 @@ use traits::FillableVector;
 mod display;
 use display::Display;
 
+use wasm_bindgen::prelude::wasm_bindgen;
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
+// To print in to the browser console.
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
 pub struct Chip8CPU {
     /// For the CHIP8 virtual machine, the input comes from a 16-button keyboard
     /// (pretty convenient that the number of keys falls within a nibble). The
@@ -49,5 +62,7 @@ impl Chip8CPU {
         }
     }
 
-    pub fn load_rom(&self, game_data: &Vec<u8>) {}
+    pub fn load_rom(&self, game_data: &Vec<u8>) {
+        console_log!("🐸🐸🐸 {:?}", game_data.len());
+    }
 }

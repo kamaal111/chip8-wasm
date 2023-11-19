@@ -10,17 +10,6 @@ use std::collections::HashMap;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 #[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
-
-// To print in to the browser console.
-macro_rules! console_log {
-    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
-}
-
-#[wasm_bindgen]
 pub struct Chip8 {
     cpu: Chip8CPU,
     games: HashMap<String, Vec<u8>>,

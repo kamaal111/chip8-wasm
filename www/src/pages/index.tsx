@@ -1,4 +1,4 @@
-import { Chip8Emulator } from "chip8";
+import { Chip8 } from "chip8";
 import Head from "next/head";
 
 import GameSelector from "@/components/GameSelector";
@@ -6,7 +6,7 @@ import Chip8Display from "@/components/Chip8Display";
 
 import styles from "@/styles/pages/home.module.css";
 
-const chip8 = Chip8Emulator.new();
+const chip8 = Chip8.new();
 
 export default function Home() {
   return (

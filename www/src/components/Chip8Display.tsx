@@ -1,5 +1,5 @@
 import * as React from "react";
-import { type Chip8Emulator } from "chip8";
+import { type Chip8 } from "chip8";
 
 import styles from "@/styles/components/chip8Display.module.css";
 
@@ -66,7 +66,7 @@ function drawDisplayBuffers(
   context.stroke();
 }
 
-function Chip8Display({ emulator }: { emulator: Chip8Emulator }) {
+function Chip8Display({ emulator }: { emulator: Chip8 }) {
   const chip8DisplayRef = React.useRef<HTMLCanvasElement | null>(null);
 
   const chip8DisplayDimensions = {

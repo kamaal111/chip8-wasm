@@ -1,7 +1,7 @@
 import * as React from "react";
-import { type Chip8Emulator } from "chip8";
+import { type Chip8 } from "chip8";
 
-function useGames(emulator: Chip8Emulator) {
+function useGames(emulator: Chip8) {
   const [games, setGames] = React.useState<Array<string>>([]);
   const [selectedGame, setSelectedGame] = React.useState<string | null>(null);
 
@@ -13,8 +13,9 @@ function useGames(emulator: Chip8Emulator) {
   }, []);
 
   React.useEffect(() => {
-    if (games.length > 0 && selectedGame == null) {
-      setSelectedGame(games[0]);
+    const gameToSelect = games[0];
+    if (gameToSelect != null && selectedGame == null) {
+      setSelectedGame(gameToSelect);
     } else if (games.length === 0 && selectedGame != null) {
       setSelectedGame(null);
     }

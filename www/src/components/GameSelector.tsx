@@ -1,8 +1,8 @@
-import { type Chip8Emulator } from "chip8";
+import { type Chip8 } from "chip8";
 
 import useGames from "@/hooks/useGames";
 
-function GameSelector({ emulator }: { emulator: Chip8Emulator }) {
+function GameSelector({ emulator }: { emulator: Chip8 }) {
   const { games, selectedGame } = useGames(emulator);
 
   return (

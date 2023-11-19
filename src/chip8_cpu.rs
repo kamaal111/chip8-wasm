@@ -8,6 +8,25 @@ use display::Display;
 
 use wasm_bindgen::prelude::wasm_bindgen;
 
+const FONTSET: [u8; 80] = [
+    0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+    0x20, 0x60, 0x20, 0x20, 0x70, // 1
+    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+    0xF0, 0x80, 0xF0, 0x80, 0x80, // F
+];
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
@@ -52,7 +71,7 @@ impl Chip8CPU {
         Chip8CPU {
             key_inputs: Vec::with_filled_capacity(16, 0),
             display: Display::new(),
-            memory: Vec::with_filled_capacity(4096, 0),
+            memory: load_fontset(Vec::with_filled_capacity(4096, 0)),
             gpio: Vec::with_filled_capacity(16, 0),
             sound_timer: 0,
             delay_timer: 0,
@@ -65,4 +84,14 @@ impl Chip8CPU {
     pub fn load_rom(&self, game_data: &Vec<u8>) {
         console_log!("🐸🐸🐸 {:?}", game_data.len());
     }
+}
+
+fn load_fontset(memory: Vec<u8>) -> Vec<u8> {
+    let mut memory_clone = memory.clone();
+    FONTSET
+        .iter()
+        .enumerate()
+        .for_each(|(index, font)| memory_clone[index] = font.clone());
+
+    memory_clone
 }

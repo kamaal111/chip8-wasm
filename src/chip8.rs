@@ -32,7 +32,7 @@ impl Chip8 {
             Some(game_data) => game_data,
         };
 
-        let new_cpu = Chip8CPU::new();
+        let mut new_cpu = Chip8CPU::new();
         new_cpu.load_rom(game_data);
         self.cpu = new_cpu;
 

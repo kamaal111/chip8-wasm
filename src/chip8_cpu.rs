@@ -81,8 +81,12 @@ impl Chip8CPU {
         }
     }
 
-    pub fn load_rom(&self, game_data: &Vec<u8>) {
-        console_log!("🐸🐸🐸 {:?}", game_data.len());
+    pub fn load_rom(&mut self, game_data: &Vec<u8>) {
+        console_log!("Loaded game with {:?} bytes", game_data.len());
+        game_data
+            .iter()
+            .enumerate()
+            .for_each(|(index, binary)| self.memory[index + 0x200] = binary.clone());
     }
 }
 

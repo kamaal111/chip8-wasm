@@ -1,0 +1,30 @@
+name: CI
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  deploy:
+    name: Deploy
+    timeout-minutes: 15
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v2
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Install zsh
+        run: sudo apt-get update; sudo apt-get install zsh
+
+      - name: Build
+        run: just build-release
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: www/out

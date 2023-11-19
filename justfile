@@ -1,24 +1,31 @@
 default:
     just --list
 
-build:
+build-release:
+    #!/bin/zsh
+
+    npx wasm-pack build --release
+    just www/install-node-modules
+    just www/build
+
+build-dev:
     #!/bin/zsh
 
     rm -rf www/node_modules www/.next
     yarn
     npx wasm-pack build
-    just install-web-dependencies
+    just www/install-node-modules
 
 run:
     just www/run
 
-build-run: build run
+build-run-dev: build-dev run
 
-bootstrap: install-node-modules
-
-setup-dev-container:
+setup-dev-container: 
     just .devcontainer/setup-dev-container
-    just bootstrap
+    just build-dev
+    just install-node-modules
+    just www/install-node-modules
 
 initialize-dev-container:
     just .devcontainer/initialize-dev-container
@@ -26,8 +33,3 @@ initialize-dev-container:
 [private]
 install-node-modules:
     yarn
-    just www/bootstrap
-
-[private]
-install-web-dependencies:
-    just www/install-node-modules

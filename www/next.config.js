@@ -1,13 +1,33 @@
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
   reactStrictMode: false,
-  webpack: (config) => {
-    return {
+  output: "export",
+  webpack: (config, { isServer }) => {
+    const webpackConfig = {
       ...config,
       experiments: {
         ...config.experiments,
         asyncWebAssembly: true,
-        syncWebAssembly: true,
+      },
+    };
+
+    const wasmOutputPath = "static/wasm/[modulehash].wasm";
+    if (isServer) {
+      return {
+        ...webpackConfig,
+        output: {
+          ...webpackConfig.output,
+          webassemblyModuleFilename: `../${wasmOutputPath}`,
+        },
+      };
+    }
+
+    return {
+      ...webpackConfig,
+      output: {
+        ...webpackConfig.output,
+        webassemblyModuleFilename: wasmOutputPath,
       },
     };
   },

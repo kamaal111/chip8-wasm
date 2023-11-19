@@ -26,13 +26,15 @@ impl Chip8 {
         }
     }
 
-    pub fn load_rom(&self, game_name: String) -> Result<(), js_sys::Error> {
+    pub fn load_rom(&mut self, game_name: String) -> Result<(), js_sys::Error> {
         let game_data = match self.get_game_with_name(game_name) {
             None => return Err(js_sys::Error::new("Invalid game provided").into()),
             Some(game_data) => game_data,
         };
 
-        self.cpu.load_rom(game_data);
+        let new_cpu = Chip8CPU::new();
+        new_cpu.load_rom(game_data);
+        self.cpu = new_cpu;
 
         Ok(())
     }

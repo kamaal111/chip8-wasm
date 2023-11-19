@@ -1,17 +1,14 @@
-import * as React from "react";
 import { type Chip8Emulator } from "chip8";
 
-function GameSelector({ emulator }: { emulator: Chip8Emulator }) {
-  const [games, setGames] = React.useState<Array<string>>([]);
+import useGames from "@/hooks/useGames";
 
-  React.useEffect(() => {
-    setGames(emulator.get_game_names());
-  }, []);
+function GameSelector({ emulator }: { emulator: Chip8Emulator }) {
+  const { games, selectedGame } = useGames(emulator);
 
   return (
     <>
       <label>Choose a game:</label>
-      <select name="games" id="games">
+      <select name="games" value={selectedGame ?? undefined}>
         {games.map((game) => {
           return (
             <option value={game} key={game}>

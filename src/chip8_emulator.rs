@@ -5,7 +5,8 @@ mod utils;
 mod traits;
 use traits::FillableVector;
 
-use js_sys::{Array, Uint8Array};
+use std::collections::HashMap;
+
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
 const DISPLAY_WIDTH: u32 = 64;
@@ -25,7 +26,7 @@ macro_rules! console_log {
 #[wasm_bindgen]
 pub struct Chip8Emulator {
     cpu: Chip8CPU,
-    games: Vec<Game>,
+    games: HashMap<String, Vec<u8>>,
 }
 
 #[wasm_bindgen]
@@ -35,19 +36,31 @@ impl Chip8Emulator {
 
         Chip8Emulator {
             cpu: Chip8CPU::new(),
-            games: Game::make_games(),
+            games: Self::make_games(),
         }
     }
 
-    pub fn get_game_names(&self) -> Array {
+    pub fn load_rom(&self, game_name: String) -> Result<(), js_sys::Error> {
+        if !self.games_contain_game_name(game_name) {
+            return Err(js_sys::Error::new("Invalid game provided").into());
+        }
+
+        Ok(())
+    }
+
+    pub fn on_key_press(&self, symbol: String, modifier: String) {}
+
+    pub fn on_key_release(&self, symbol: String, modifier: String) {}
+
+    pub fn get_game_names(&self) -> js_sys::Array {
         self.games
             .iter()
-            .map(|game| JsValue::from_str(game.name.as_str()))
-            .collect::<Array>()
+            .map(|game| JsValue::from_str(game.0))
+            .collect::<js_sys::Array>()
     }
 
     /// Get buffer as a flat JavaScript array.
-    pub fn get_display_buffer(&self) -> Uint8Array {
+    pub fn get_display_buffer(&self) -> js_sys::Uint8Array {
         self.cpu.display.get_buffer()
     }
 
@@ -60,21 +73,16 @@ impl Chip8Emulator {
     }
 }
 
-struct Game {
-    name: String,
-    data: Vec<u8>,
-}
-
-impl Game {
-    fn make_games() -> Vec<Game> {
-        let mut games = Vec::new();
-        let pong = Game {
-            name: String::from("PONG"),
-            data: include_bytes!("games/PONG").to_vec(),
-        };
-        games.push(pong);
+impl Chip8Emulator {
+    fn make_games() -> HashMap<String, Vec<u8>> {
+        let mut games = HashMap::new();
+        games.insert("PONG".to_string(), include_bytes!("games/PONG").to_vec());
 
         games
+    }
+
+    fn games_contain_game_name(&self, game_name: String) -> bool {
+        self.games.get(&game_name).is_some()
     }
 }
 
@@ -140,7 +148,7 @@ impl Display {
         }
     }
 
-    fn get_buffer(&self) -> Uint8Array {
-        Uint8Array::from(self.buffer.as_slice())
+    fn get_buffer(&self) -> js_sys::Uint8Array {
+        js_sys::Uint8Array::from(self.buffer.as_slice())
     }
 }

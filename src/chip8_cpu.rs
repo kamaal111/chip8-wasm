@@ -94,8 +94,9 @@ impl Chip8CPU {
         console_log!("Loaded game with {:?} bytes", game_data.len());
         game_data
             .iter()
+            .cloned()
             .enumerate()
-            .for_each(|(index, binary)| self.memory[index + 0x200] = binary.clone());
+            .for_each(|(index, binary)| self.memory[index + 0x200] = binary);
     }
 
     pub fn cycle(&mut self) {
@@ -109,6 +110,10 @@ pub struct Processor {}
 impl Processor {
     fn process_opcode(cpu: &mut Chip8CPU) {
         let opcode = Self::fetch_opcode(cpu);
+
+        let x = ((opcode & 0x0F00) >> 8) as usize;
+        let y = ((opcode & 0x00F0) >> 4) as usize;
+        let nn = (opcode & 0x00FF) as u8;
 
         match opcode & 0xF000 {
             0x0000 => match opcode & 0x000F {
@@ -144,37 +149,27 @@ impl Processor {
             }
             0x3000 => {
                 // 3XNN: Skips the next instruction if VX equals NN.
-                let x = ((opcode & 0x0F00) >> 8) as usize;
-                let nn = (opcode & 0x00FF) as u8;
                 cpu.program_counter += if cpu.gpio[x] == nn { 4 } else { 2 };
                 return;
             }
             0x4000 => {
                 // 4XNN: Skips the next instruction if VX doesn't equal NN.
-                let x = ((opcode & 0x0F00) >> 8) as usize;
-                let nn = (opcode & 0x00FF) as u8;
                 cpu.program_counter += if cpu.gpio[x] != nn { 4 } else { 2 };
                 return;
             }
             0x5000 => {
                 // 5XY0: Skips the next instruction if VX equals VY.
-                let x = ((opcode & 0x0F00) >> 8) as usize;
-                let y = ((opcode & 0x0F00) >> 4) as usize;
                 cpu.program_counter += if cpu.gpio[x] == cpu.gpio[y] { 4 } else { 2 };
                 return;
             }
             0x6000 => {
                 // 6XNN: Sets VX to NN.
-                let x = ((opcode & 0x0F00) >> 8) as usize;
-                let nn = (opcode & 0x00FF) as u8;
                 cpu.gpio[x] = nn;
                 cpu.program_counter += 2;
                 return;
             }
             0x7000 => {
                 // 7XNN: Adds NN to VX.
-                let x = ((opcode & 0x0F00) >> 8) as usize;
-                let nn = (opcode & 0x00FF) as u8;
                 (cpu.gpio[x], _) = cpu.gpio[x].overflowing_add(nn);
                 cpu.program_counter += 2;
                 return;
@@ -182,40 +177,30 @@ impl Processor {
             0x8000 => match opcode & 0x000F {
                 0x0000 => {
                     // 8XY0: Sets VX to the value of VY.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
-                    let y = ((opcode & 0x0F00) >> 4) as usize;
                     cpu.gpio[x] = cpu.gpio[y];
                     cpu.program_counter += 2;
                     return;
                 }
                 0x0001 => {
                     // 8XY1: Sets VX to VX or VY.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
-                    let y = ((opcode & 0x0F00) >> 4) as usize;
                     cpu.gpio[x] |= cpu.gpio[y];
                     cpu.program_counter += 2;
                     return;
                 }
                 0x0002 => {
                     // 8XY2: Sets VX to VX and VY.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
-                    let y = ((opcode & 0x0F00) >> 4) as usize;
                     cpu.gpio[x] &= cpu.gpio[y];
                     cpu.program_counter += 2;
                     return;
                 }
                 0x0003 => {
                     // 8XY3: Sets VX to VX xor VY.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
-                    let y = ((opcode & 0x0F00) >> 4) as usize;
                     cpu.gpio[x] ^= cpu.gpio[y];
                     cpu.program_counter += 2;
                     return;
                 }
                 0x0004 => {
                     // 8XY4: Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
-                    let y = ((opcode & 0x0F00) >> 4) as usize;
                     cpu.gpio[0xF] = if cpu.gpio[y] > (0xFF - cpu.gpio[x]) {
                         1
                     } else {
@@ -227,8 +212,6 @@ impl Processor {
                 }
                 0x0005 => {
                     // 8XY5: VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
-                    let y = ((opcode & 0x0F00) >> 4) as usize;
                     cpu.gpio[0xF] = if cpu.gpio[y] > cpu.gpio[x] { 0 } else { 1 };
                     (cpu.gpio[x], _) = cpu.gpio[x].overflowing_sub(cpu.gpio[y]);
                     cpu.program_counter += 2;
@@ -236,7 +219,6 @@ impl Processor {
                 }
                 0x0006 => {
                     // 8XY6: Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     cpu.gpio[0xF] = cpu.gpio[x] & 0x1;
                     cpu.gpio[x] >>= 1;
                     cpu.program_counter += 2;
@@ -244,8 +226,6 @@ impl Processor {
                 }
                 0x0007 => {
                     // 8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
-                    let y = ((opcode & 0x0F00) >> 4) as usize;
                     cpu.gpio[0xF] = if cpu.gpio[x] > cpu.gpio[y] { 0 } else { 1 };
                     (cpu.gpio[x], _) = cpu.gpio[y].overflowing_sub(cpu.gpio[x]);
                     cpu.program_counter += 2;
@@ -254,7 +234,6 @@ impl Processor {
                 // 61584
                 0x000E => {
                     // 8XYE: Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     cpu.gpio[0xF] = cpu.gpio[x] >> 7;
                     cpu.gpio[x] <<= 1;
                     cpu.program_counter += 2;
@@ -266,8 +245,6 @@ impl Processor {
             },
             0x9000 => {
                 // 9XY0: Skips the next instruction if VX doesn't equal VY.
-                let x = ((opcode & 0x0F00) >> 8) as usize;
-                let y = ((opcode & 0x0F00) >> 4) as usize;
                 cpu.program_counter += if cpu.gpio[x] != cpu.gpio[y] { 4 } else { 2 };
                 return;
             }
@@ -284,16 +261,11 @@ impl Processor {
             }
             0xC000 => {
                 // CXNN: Sets VX to the result of a bitwise and operation on a random number and NN.
-                let x = ((opcode & 0x0F00) >> 8) as usize;
-                let nn = (opcode & 0x00FF) as u8;
-                let mut rng = rand::thread_rng();
-                cpu.gpio[x] = nn & (rng.gen::<u8>() % 0xFF);
+                cpu.gpio[x] = nn & (rand::thread_rng().gen::<u8>() % 0xFF);
                 return;
             }
             0xD000 => {
                 // Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; I value doesn’t change after the execution of this instruction. As described above, VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that doesn’t happen
-                let x = ((opcode & 0x0F00) >> 8) as usize;
-                let y = ((opcode & 0x0F00) >> 4) as usize;
                 let height = opcode & 0x000F;
                 cpu.gpio[0xF] = 0;
                 (0..height).for_each(|y_line| {
@@ -325,7 +297,6 @@ impl Processor {
             0xE000 => match opcode & 0x000F {
                 0x000E => {
                     // EX9E: Skips the next instruction if the key stored in VX is pressed.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     cpu.program_counter += if cpu.key_inputs[cpu.gpio[x] as usize] != 0 {
                         4
                     } else {
@@ -335,7 +306,6 @@ impl Processor {
                 }
                 0x0001 => {
                     // EXA1: Skips the next instruction if the key stored in VX isn't pressed.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     cpu.program_counter += if cpu.key_inputs[cpu.gpio[x] as usize] == 0 {
                         4
                     } else {
@@ -350,7 +320,6 @@ impl Processor {
             0xF000 => match opcode & 0x00FF {
                 0x0007 => {
                     // FX07: Sets VX to the value of the delay timer.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     cpu.gpio[x] = cpu.delay_timer;
                     cpu.program_counter += 2;
                     return;
@@ -378,21 +347,18 @@ impl Processor {
                 }
                 0x0015 => {
                     // FX15: Sets the delay timer to VX.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     cpu.delay_timer = cpu.gpio[x];
                     cpu.program_counter += 2;
                     return;
                 }
                 0x0018 => {
                     // FX18: Sets the sound timer to VX.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     cpu.sound_timer = cpu.gpio[x];
                     cpu.program_counter += 2;
                     return;
                 }
                 0x001E => {
                     // FX1E: Adds VX to I.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     // VF is set to 1 when range overflow (I+VX>0xFFF), and 0 when there isn't.
                     cpu.gpio[0xF] = if (cpu.index_register + (cpu.gpio[x] as u16)) > 0xFFF {
                         1
@@ -405,14 +371,12 @@ impl Processor {
                 }
                 0x0029 => {
                     // FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     cpu.index_register = (cpu.gpio[x] as u16) * 0x5;
                     cpu.program_counter += 2;
                     return;
                 }
                 0x0033 => {
                     // FX33: Stores the binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     let memory_index = cpu.index_register as usize;
                     let x_register = cpu.gpio[x];
                     cpu.memory[memory_index] = x_register;
@@ -423,7 +387,6 @@ impl Processor {
                 }
                 0x0055 => {
                     // FX55: Stores V0 to VX (including VX) in memory starting at address I.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     (0..(x + 1)).for_each(|index| {
                         let memory_index = (cpu.index_register as usize) + index;
                         cpu.memory[memory_index] = cpu.gpio[index];
@@ -434,7 +397,6 @@ impl Processor {
                 }
                 0x0065 => {
                     // FX65: Fills V0 to VX (including VX) with values from memory starting at address I.
-                    let x = ((opcode & 0x0F00) >> 8) as usize;
                     (0..(x + 1)).for_each(|index| {
                         let memory_index = (cpu.index_register as usize) + index;
                         cpu.memory[index] = cpu.gpio[memory_index];
